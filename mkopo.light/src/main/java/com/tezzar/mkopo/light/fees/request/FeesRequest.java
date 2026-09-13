@@ -1,6 +1,4 @@
 package com.tezzar.mkopo.light.fees.request;
 
-public record FeeRequest(
-
-) {
+public record FeesRequest() {
 }
