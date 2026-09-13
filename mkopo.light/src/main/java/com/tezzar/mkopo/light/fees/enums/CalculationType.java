@@ -1,4 +1,4 @@
-package com.tezzar.mkopo.light.product.fees.enums;
+package com.tezzar.mkopo.light.fees.enums;
 
 public enum CalculationType {
     FIXED,

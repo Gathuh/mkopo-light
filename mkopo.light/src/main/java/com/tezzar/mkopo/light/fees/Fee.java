@@ -1,8 +1,9 @@
-package com.tezzar.mkopo.light.product.fees;
+package com.tezzar.mkopo.light.fees;
 
-import com.tezzar.mkopo.light.product.ProductEntity;
-import com.tezzar.mkopo.light.product.fees.enums.CalculationType;
-import com.tezzar.mkopo.light.product.fees.enums.FeeType;
+import com.tezzar.mkopo.light.fees.enums.CalculationType;
+import com.tezzar.mkopo.light.fees.enums.FeeType;
+import com.tezzar.mkopo.light.fees.enums.FeeTiming;
+import com.tezzar.mkopo.light.tenure.TenureEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -29,8 +30,9 @@ public class Fee {
     @Enumerated(EnumType.STRING)
     private FeeTiming timing;
 
+//    @ManyToOne
+//    private TenureEntity tenureEntity;
+
     private Integer triggerDays;
 
-
-    private Boolean capitalized;
 }
