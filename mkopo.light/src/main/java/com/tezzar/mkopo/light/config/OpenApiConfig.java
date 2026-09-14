@@ -22,12 +22,12 @@ public class OpenApiConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Tezzar")
-                                .email("support@tezzar.com"))
+                                )
                         .license(new License()
                                 .name("Apache 2.0")))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8081")
+                                .url("http://localhost:9081")
                                 .description("Local Development Server")
                 ));
     }

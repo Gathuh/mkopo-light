@@ -1,5 +1,6 @@
 package com.tezzar.mkopo.light.product.request;
 
+import com.tezzar.mkopo.light.product.ProductEntity;
 import com.tezzar.mkopo.light.product.enums.ProductStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,11 +16,15 @@ public record ProductRequest(
         @NotNull(message = "Capitalized flag cannot be null")
         Boolean capitalized,
 
-        @NotNull(message = "Product status cannot be null")
-        ProductStatus status,
-
         List<String> tenureIds,
 
         List<String> feeIds
 ) {
+        public static ProductEntity toProductEntity(ProductRequest productRequest) {
+                return ProductEntity.builder()
+                        .productName(productRequest.productName())
+                        .productDescription(productRequest.productDescription())
+                        .capitalized(productRequest.capitalized())
+                        .build();
+        }
 }

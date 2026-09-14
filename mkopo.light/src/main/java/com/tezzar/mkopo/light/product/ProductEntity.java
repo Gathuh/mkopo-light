@@ -1,6 +1,6 @@
 package com.tezzar.mkopo.light.product;
 
-import com.tezzar.mkopo.light.fees.ProductFee;
+import com.tezzar.mkopo.light.jointables.ProductFee;
 import com.tezzar.mkopo.light.product.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,15 +26,20 @@ public class ProductEntity {
     private String productDescription;
 
     @Enumerated(EnumType.STRING)
-    private ProductStatus status;
+    private ProductStatus productStatus;
 
     private Boolean capitalized;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductFee> productFees = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductTenureOption> tenureOptions = new ArrayList<>();
+
+    @PrePersist
+    public void createStatus(){
+        productStatus=ProductStatus.ACTIVE;
+    }
 }
 
 

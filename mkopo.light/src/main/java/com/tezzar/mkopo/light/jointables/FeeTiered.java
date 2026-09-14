@@ -1,5 +1,6 @@
-package com.tezzar.mkopo.light.fees;
+package com.tezzar.mkopo.light.jointables;
 
+import com.tezzar.mkopo.light.fees.FeeEntity;
 import com.tezzar.mkopo.light.fees.enums.CalculationType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,5 +33,5 @@ public class FeeTiered {
 
     @ManyToOne
     @JoinColumn(name = "fee_id")
-    private Fee fee;
+    private FeeEntity fee;
 }

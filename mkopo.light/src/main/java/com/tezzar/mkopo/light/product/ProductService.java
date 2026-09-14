@@ -1,8 +1,15 @@
 package com.tezzar.mkopo.light.product;
 
 import com.tezzar.mkopo.light.product.request.ProductRequest;
+import com.tezzar.mkopo.light.product.request.UpdateProductRequest;
+import com.tezzar.mkopo.light.product.response.ProductResponse;
+
+import java.util.List;
 
 public interface ProductService {
-    ProductEntity createProduct(ProductRequest request);
-    ProductEntity findById(String id);
+    ProductResponse createProduct(ProductRequest request);
+    ProductResponse findById(String id);
+    List<ProductResponse> findAll();
+    ProductResponse updateProduct(String id, UpdateProductRequest request);
+    void softDelete(String id);
 }

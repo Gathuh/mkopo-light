@@ -1,8 +1,9 @@
 package com.tezzar.mkopo.light.tenure;
 
-import com.tezzar.mkopo.light.fees.TenureFee;
+import com.tezzar.mkopo.light.jointables.TenureFee;
 import com.tezzar.mkopo.light.product.ProductTenureOption;
 import com.tezzar.mkopo.light.tenure.enums.RepaymentStructure;
+import com.tezzar.mkopo.light.tenure.enums.TenureStatus;
 import com.tezzar.mkopo.light.tenure.enums.TenureType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,9 +41,19 @@ public class TenureEntity {
 
     private Boolean capitalized;
 
-    @OneToMany(mappedBy = "tenure", cascade = CascadeType.ALL)
+    @Enumerated(EnumType.STRING)
+    private TenureStatus status;
+
+    @OneToMany(mappedBy = "tenure", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TenureFee> tenureFees = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tenure", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenure", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductTenureOption> productTenureOptions = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.status == null) {
+            this.status = TenureStatus.ACTIVE;
+        }
+    }
 }

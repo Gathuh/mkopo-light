@@ -2,9 +2,9 @@ spring:
   application:
     name: mkopo.light
   datasource:
-    url: jdbc:mysql://localhost:3306/mkopo_lending_db
-    username: root
-    password: root
+    url: jdbc:mysql://localhost:3306/mkopo_lending_db?createDatabaseIfNotExist=true
+    username: lending_user
+    password: SQLpassword@123
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

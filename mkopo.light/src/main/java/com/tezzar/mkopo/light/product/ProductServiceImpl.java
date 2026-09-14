@@ -1,16 +1,18 @@
 package com.tezzar.mkopo.light.product;
 
-import com.tezzar.mkopo.light.fees.Fee;
-import com.tezzar.mkopo.light.fees.FeeRepository;
-import com.tezzar.mkopo.light.fees.ProductFee;
+import com.tezzar.mkopo.light.fees.FeeEntity;
+import com.tezzar.mkopo.light.fees.FeeService;
+import com.tezzar.mkopo.light.jointables.ProductFee;
+import com.tezzar.mkopo.light.product.enums.ProductStatus;
 import com.tezzar.mkopo.light.product.request.ProductRequest;
+import com.tezzar.mkopo.light.product.request.UpdateProductRequest;
+import com.tezzar.mkopo.light.product.response.ProductResponse;
 import com.tezzar.mkopo.light.tenure.TenureEntity;
-import com.tezzar.mkopo.light.tenure.TenureRepository;
+import com.tezzar.mkopo.light.tenure.TenureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,53 +20,98 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final TenureRepository tenureRepository;
-    private final FeeRepository feeRepository;
+    private final TenureService tenureService;
+    private final FeeService feeService;
 
     @Override
-    public ProductEntity createProduct(ProductRequest request) {
-        ProductEntity product = ProductEntity.builder()
-                .productName(request.productName())
-                .productDescription(request.productDescription())
-                .capitalized(request.capitalized())
-                .status(request.status())
-                .build();
+    @Transactional
+    public ProductResponse createProduct(ProductRequest productRequest) {
+        ProductEntity product = ProductRequest.toProductEntity(productRequest);
+        productRepository.save(product);
 
-        ProductEntity savedProduct = productRepository.save(product);
-
-        if (request.tenureIds() != null && !request.tenureIds().isEmpty()) {
-            List<TenureEntity> tenures = tenureRepository.findAllByIdIn(request.tenureIds());
-            List<ProductTenureOption> tenureOptions = new ArrayList<>();
+        if (productRequest.tenureIds() != null && !productRequest.tenureIds().isEmpty()) {
+            List<TenureEntity> tenures = tenureService.findAllByIds(productRequest.tenureIds());
             for (TenureEntity tenure : tenures) {
                 ProductTenureOption option = ProductTenureOption.builder()
-                        .product(savedProduct)
+                        .product(product)
                         .tenure(tenure)
-                        .attachedAt(LocalDateTime.now())
                         .build();
-                tenureOptions.add(option);
+                product.getTenureOptions().add(option);
             }
-            savedProduct.setTenureOptions(tenureOptions);
         }
 
-        if (request.feeIds() != null && !request.feeIds().isEmpty()) {
-            List<Fee> fees = feeRepository.findAllByIdIn(request.feeIds());
-            List<ProductFee> productFees = new ArrayList<>();
-            for (Fee fee : fees) {
+        if (productRequest.feeIds() != null && !productRequest.feeIds().isEmpty()) {
+            List<FeeEntity> fees = feeService.findAllByIds(productRequest.feeIds());
+            for (FeeEntity fee : fees) {
                 ProductFee productFee = ProductFee.builder()
-                        .product(savedProduct)
+                        .product(product)
                         .fee(fee)
-                        .attachedAt(LocalDateTime.now())
                         .build();
-                productFees.add(productFee);
+                product.getProductFees().add(productFee);
             }
-            savedProduct.setProductFees(productFees);
         }
 
-        return productRepository.save(savedProduct);
+        return ProductResponse.fromEntity(productRepository.save(product));
     }
 
     @Override
-    public ProductEntity findById(String id) {
+    public ProductResponse findById(String id) {
+        return ProductResponse.fromEntity(getProductOrThrow(id));
+    }
+
+    @Override
+    public List<ProductResponse> findAll() {
+        return productRepository.findByProductStatusNot(ProductStatus.DELETED)
+                .stream()
+                .map(ProductResponse::fromEntity)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse updateProduct(String id, UpdateProductRequest request) {
+        ProductEntity product = getProductOrThrow(id);
+
+        product.setProductName(request.productName());
+        product.setProductDescription(request.productDescription());
+        product.setCapitalized(request.capitalized());
+
+        if (request.tenureIds() != null && !request.tenureIds().isEmpty()) {
+            product.getTenureOptions().clear();
+            List<TenureEntity> tenures = tenureService.findAllByIds(request.tenureIds());
+            for (TenureEntity tenure : tenures) {
+                ProductTenureOption option = ProductTenureOption.builder()
+                        .product(product)
+                        .tenure(tenure)
+                        .build();
+                product.getTenureOptions().add(option);
+            }
+        }
+
+        if (request.feeIds() != null && !request.feeIds().isEmpty()) {
+            product.getProductFees().clear();
+            List<FeeEntity> fees = feeService.findAllByIds(request.feeIds());
+            for (FeeEntity fee : fees) {
+                ProductFee productFee = ProductFee.builder()
+                        .product(product)
+                        .fee(fee)
+                        .build();
+                product.getProductFees().add(productFee);
+            }
+        }
+
+        return ProductResponse.fromEntity(productRepository.save(product));
+    }
+
+    @Override
+    @Transactional
+    public void softDelete(String id) {
+        ProductEntity product = getProductOrThrow(id);
+        product.setProductStatus(ProductStatus.DELETED);
+        productRepository.save(product);
+    }
+
+    private ProductEntity getProductOrThrow(String id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }

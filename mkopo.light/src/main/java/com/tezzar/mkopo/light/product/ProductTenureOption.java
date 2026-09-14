@@ -28,4 +28,9 @@ public class ProductTenureOption {
     private TenureEntity tenure;
 
     private LocalDateTime attachedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.attachedAt = LocalDateTime.now();
+    }
 }
