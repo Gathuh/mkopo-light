@@ -1,15 +1,22 @@
 package com.tezzar.mkopo.light.fees;
 
 import com.tezzar.mkopo.light.fees.enums.CalculationType;
-import com.tezzar.mkopo.light.fees.enums.FeeType;
 import com.tezzar.mkopo.light.fees.enums.FeeTiming;
-import com.tezzar.mkopo.light.tenure.TenureEntity;
+import com.tezzar.mkopo.light.fees.enums.FeeType;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+@Getter
+@Setter
+@Builder
 @Entity
-@Table(name = "product_fees")
+@Table(name = "fees")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Fee {
 
     @Id
@@ -22,17 +29,21 @@ public class Fee {
     @Enumerated(EnumType.STRING)
     private CalculationType calculationType;
 
-    private BigDecimal minAmount;
-    private BigDecimal maximumAmount;
+    private BigDecimal amount;
 
     private BigDecimal rate;
 
     @Enumerated(EnumType.STRING)
     private FeeTiming timing;
 
-//    @ManyToOne
-//    private TenureEntity tenureEntity;
-
     private Integer triggerDays;
 
+    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL)
+    private List<FeeTiered> tiers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL)
+    private List<ProductFee> productFees = new ArrayList<>();
+
+    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL)
+    private List<TenureFee> tenureFees = new ArrayList<>();
 }

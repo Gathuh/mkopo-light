@@ -1,7 +1,7 @@
-package com.tezzar.mkopo.light.product;
+package com.tezzar.mkopo.light.fees;
 
 import com.tezzar.mkopo.light.controllerresponse.MessageAndResultResponse;
-import com.tezzar.mkopo.light.product.request.ProductRequest;
+import com.tezzar.mkopo.light.fees.request.FeesRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mkopo/products")
+@RequestMapping("/mkopo/fees")
 @RequiredArgsConstructor
-@Tag(name = "Product Management", description = "Create and manage loan products")
-public class ProductController {
+@Tag(name = "Fee Management", description = "Create and manage reusable fee configurations")
+public class FeeController {
 
-    private final ProductService productService;
+    private final FeeService feeService;
 
     @PostMapping
     @Operation(
-            summary = "Create a new loan product",
-            description = "Creates a loan product by attaching existing tenure and fee configurations using their IDs"
+            summary = "Create a new fee",
+            description = "Creates a reusable fee configuration that can be attached to multiple products or tenures"
     )
-    public ResponseEntity<MessageAndResultResponse<ProductEntity>> createProduct(@Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<MessageAndResultResponse<Fee>> createFee(@Valid @RequestBody FeesRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(MessageAndResultResponse.success(productService.createProduct(request), "Product created successfully"));
+                .body(MessageAndResultResponse.success(feeService.createFee(request), "Fee created successfully"));
     }
 }

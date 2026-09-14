@@ -7,23 +7,30 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "fee_tiers")
 @Getter
-@Setter@AllArgsConstructor
+@Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class FeeTiered {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
     private BigDecimal minimumAmount;
+
     private BigDecimal maximumAmount;
+
     @Enumerated(EnumType.STRING)
-    private CalculationType calculationType;
-    private BigDecimal rateValue;
+    private CalculationType tierCalculationType;
+
+    private BigDecimal tierAmount;
+
+    private BigDecimal tierRate;
+
     @ManyToOne
     @JoinColumn(name = "fee_id")
     private Fee fee;
-
-
 }

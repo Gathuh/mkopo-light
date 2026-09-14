@@ -1,7 +1,7 @@
-package com.tezzar.mkopo.light.product;
+package com.tezzar.mkopo.light.tenure;
 
 import com.tezzar.mkopo.light.controllerresponse.MessageAndResultResponse;
-import com.tezzar.mkopo.light.product.request.ProductRequest;
+import com.tezzar.mkopo.light.tenure.request.TenureRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mkopo/products")
+@RequestMapping("/mkopo/tenures")
 @RequiredArgsConstructor
-@Tag(name = "Product Management", description = "Create and manage loan products")
-public class ProductController {
+@Tag(name = "Tenure Management", description = "Create and manage reusable tenure configurations")
+public class TenureController {
 
-    private final ProductService productService;
+    private final TenureService tenureService;
 
     @PostMapping
     @Operation(
-            summary = "Create a new loan product",
-            description = "Creates a loan product by attaching existing tenure and fee configurations using their IDs"
+            summary = "Create a new tenure",
+            description = "Creates a reusable tenure option with repayment structure and optional fee attachments"
     )
-    public ResponseEntity<MessageAndResultResponse<ProductEntity>> createProduct(@Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<MessageAndResultResponse<TenureEntity>> createTenure(@Valid @RequestBody TenureRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(MessageAndResultResponse.success(productService.createProduct(request), "Product created successfully"));
+                .body(MessageAndResultResponse.success(tenureService.createTenure(request), "Tenure created successfully"));
     }
 }
