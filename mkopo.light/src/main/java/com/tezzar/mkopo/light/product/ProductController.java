@@ -84,4 +84,16 @@ public class ProductController {
                 null,
                 "Product deleted successfully"));
     }
+
+    @GetMapping("/{productId}/tenures")
+    @Operation(
+            summary = "Get tenures for a product",
+            description = "Returns only the tenures attached to this product — used during loan application"
+    )
+    public ResponseEntity<MessageAndResultResponse<List<TenureResponse>>> getTenuresByProduct(
+            @PathVariable String productId) {
+        return ResponseEntity.ok(MessageAndResultResponse.success(
+                productService.getTenuresByProduct(productId),
+                "Tenures retrieved successfully"));
+    }
 }

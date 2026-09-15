@@ -113,4 +113,18 @@ public class TenureServiceImpl implements TenureService {
         return tenureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tenure not found with id: " + id));
     }
+
+    @Override
+    public TenureEntity findEntityById(String id) {
+        return getTenureOrThrow(id);
+    }
+
+    @Override
+    public List<FeeResponse> getFeesByTenure(String tenureId) {
+        TenureEntity tenure = getTenureOrThrow(tenureId);
+        return tenure.getTenureFees()
+                .stream()
+                .map(tf -> FeeResponse.fromEntity(tf.getFee()))
+                .toList();
+    }
 }
