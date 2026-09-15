@@ -73,4 +73,16 @@ public class TenureController {
                 null,
                 "Tenure deleted successfully"));
     }
+
+    @GetMapping("/{tenureId}/fees")
+    @Operation(
+            summary = "Get fees for a tenure",
+            description = "Returns only the fees attached to this tenure — used during loan application"
+    )
+    public ResponseEntity<MessageAndResultResponse<List<FeeResponse>>> getFeesByTenure(
+            @PathVariable String tenureId) {
+        return ResponseEntity.ok(MessageAndResultResponse.success(
+                tenureService.getFeesByTenure(tenureId),
+                "Fees retrieved successfully"));
+    }
 }

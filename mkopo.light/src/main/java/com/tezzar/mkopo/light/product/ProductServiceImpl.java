@@ -115,4 +115,13 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
+
+    @Override
+    public List<TenureResponse> getTenuresByProduct(String productId) {
+        ProductEntity product = getProductOrThrow(productId);
+        return product.getTenureOptions()
+                .stream()
+                .map(pto -> TenureResponse.fromEntity(pto.getTenure()))
+                .toList();
+    }
 }

@@ -4,3 +4,5 @@ target/
 .gradle/
 build/
 .env
+.idea/
+notifications/src/main/resources/mkopo-ebea5-firebase-adminsdk-fbsvc-c58ee9024a.json
