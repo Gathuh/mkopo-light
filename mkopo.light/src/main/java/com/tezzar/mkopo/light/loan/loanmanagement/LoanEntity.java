@@ -1,5 +1,6 @@
-package com.tezzar.mkopo.light.loan;
+package com.tezzar.mkopo.light.loan.loanmanagement;
 
+import com.tezzar.mkopo.light.exception.InvalidLoanStateException;
 import com.tezzar.mkopo.light.loan.enums.BillingType;
 import com.tezzar.mkopo.light.loan.enums.LoanState;
 import com.tezzar.mkopo.light.loan.enums.LoanType;
@@ -138,8 +139,7 @@ public class LoanEntity {
 
     public void transitionTo(LoanState next) {
         if (!this.loanState.canTransitionTo(next)) {
-            throw new RuntimeException(
-                    "Cannot transition loan from " + this.loanState + " to " + next);
+            throw new InvalidLoanStateException(this.loanState.name(), next.name());
         }
         this.loanState = next;
     }

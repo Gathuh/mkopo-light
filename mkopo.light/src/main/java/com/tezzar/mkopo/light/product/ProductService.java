@@ -14,4 +14,5 @@ public interface ProductService {
     ProductResponse updateProduct(String id, UpdateProductRequest request);
     void softDelete(String id);
     List<TenureResponse> getTenuresByProduct(String productId);
+    ProductEntity findEntityById(String id);
 }

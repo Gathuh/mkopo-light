@@ -1,6 +1,7 @@
 package com.tezzar.mkopo.light.tenure;
 
 import com.tezzar.mkopo.light.controllerresponse.MessageAndResultResponse;
+import com.tezzar.mkopo.light.fees.response.FeeResponse;
 import com.tezzar.mkopo.light.tenure.request.TenureRequest;
 import com.tezzar.mkopo.light.tenure.request.UpdateTenureRequest;
 import com.tezzar.mkopo.light.tenure.response.TenureResponse;

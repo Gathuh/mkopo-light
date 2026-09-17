@@ -1,5 +1,7 @@
 package com.tezzar.security.user;
 
+import com.tezzar.security.exception.DuplicateResourceException;
+import com.tezzar.security.exception.ResourceNotFoundException;
 import com.tezzar.security.user.enums.UserStatus;
 import com.tezzar.security.user.request.CreateUserRequest;
 import com.tezzar.security.user.request.UpdateUserRequest;
@@ -20,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("User already exists with email: " + request.email());
+            throw new DuplicateResourceException("User", "email", request.email());
         }
         return UserResponse.fromEntity(userRepository.save(CreateUserRequest.toUserEntity(request)));
     }
@@ -59,6 +61,6 @@ public class UserServiceImpl implements UserService {
 
     private UserEntity getUserOrThrow(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 }

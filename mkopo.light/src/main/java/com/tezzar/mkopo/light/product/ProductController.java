@@ -4,6 +4,7 @@ import com.tezzar.mkopo.light.controllerresponse.MessageAndResultResponse;
 import com.tezzar.mkopo.light.product.request.ProductRequest;
 import com.tezzar.mkopo.light.product.request.UpdateProductRequest;
 import com.tezzar.mkopo.light.product.response.ProductResponse;
+import com.tezzar.mkopo.light.tenure.response.TenureResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -1,6 +1,6 @@
 package com.tezzar.mkopo.light.loan.transaction;
 
-import com.tezzar.mkopo.light.loan.LoanEntity;
+import com.tezzar.mkopo.light.loan.loanmanagement.LoanEntity;
 import com.tezzar.mkopo.light.loan.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
