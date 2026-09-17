@@ -1,13 +1,12 @@
 package com.tezzar.mkopo.light.loan.installment;
 
-import com.tezzar.mkopo.light.loan.LoanEntity;
+import com.tezzar.mkopo.light.loan.loanmanagement.LoanEntity;
 import com.tezzar.mkopo.light.loan.enums.InstallmentState;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "loan_installments")

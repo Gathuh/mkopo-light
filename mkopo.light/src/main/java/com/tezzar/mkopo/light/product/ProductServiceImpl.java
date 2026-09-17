@@ -9,6 +9,7 @@ import com.tezzar.mkopo.light.product.request.UpdateProductRequest;
 import com.tezzar.mkopo.light.product.response.ProductResponse;
 import com.tezzar.mkopo.light.tenure.TenureEntity;
 import com.tezzar.mkopo.light.tenure.TenureService;
+import com.tezzar.mkopo.light.tenure.response.TenureResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,5 +124,10 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .map(pto -> TenureResponse.fromEntity(pto.getTenure()))
                 .toList();
+    }
+
+    @Override
+    public ProductEntity findEntityById(String id) {
+        return getProductOrThrow(id);
     }
 }

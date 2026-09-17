@@ -1,7 +1,7 @@
 package com.tezzar.mkopo.light.loan.feeapplication;
 
 import com.tezzar.mkopo.light.fees.enums.FeeType;
-import com.tezzar.mkopo.light.loan.LoanEntity;
+import com.tezzar.mkopo.light.loan.loanmanagement.LoanEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

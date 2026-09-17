@@ -2,6 +2,7 @@ package com.tezzar.mkopo.light.tenure;
 
 import com.tezzar.mkopo.light.fees.FeeEntity;
 import com.tezzar.mkopo.light.fees.FeeService;
+import com.tezzar.mkopo.light.fees.response.FeeResponse;
 import com.tezzar.mkopo.light.jointables.TenureFee;
 import com.tezzar.mkopo.light.tenure.enums.TenureStatus;
 import com.tezzar.mkopo.light.tenure.request.TenureRequest;
