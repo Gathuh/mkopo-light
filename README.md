@@ -39,6 +39,26 @@ Install the following on your machine:
 - Docker + Docker Compose
 - Gradle (optional, wrapper is included)
 
+## Databases to Create
+
+The services use three MySQL databases:
+
+- `mkopo_lending_db` for `mkopo.light`
+- `mkopo_security_db` for `security`
+- `mkopo_notifications_db` for `notifications`
+
+Create them before starting services:
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u root -p -e "CREATE DATABASE IF NOT EXISTS mkopo_lending_db; CREATE DATABASE IF NOT EXISTS mkopo_security_db; CREATE DATABASE IF NOT EXISTS mkopo_notifications_db;"
+```
+
+Schema export files are provided in:
+
+- `db/schema/mkopo_lending_db_schema.sql`
+- `db/schema/mkopo_security_db_schema.sql`
+- `db/schema/mkopo_notifications_db_schema.sql`
+
 ## Configuration
 
 Most services use Spring Boot `application.yml`/`application.yaml` files under:
