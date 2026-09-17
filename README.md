@@ -35,7 +35,7 @@ At a high level, distribution is:
 
 Install the following on your machine:
 
-- JDK 17+
+- JDK 21
 - Docker + Docker Compose
 - Gradle (optional, wrapper is included)
 
@@ -98,6 +98,40 @@ Run tests for one module:
 ```bash
 ./gradlew :mkopo.light:test
 ```
+
+## Seed Data
+
+Sample seed data is provided in:
+
+- `mkopo.light/src/main/resources/seed.sql`
+
+Load it after services and database are running:
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u lending_user -p mkopo_lending_db < mkopo.light/src/main/resources/seed.sql
+```
+
+The script is idempotent for seeded IDs and includes:
+
+- Loan products
+- Customer loan limits
+- Loans in `ACTIVE`, `OVERDUE`, and `CLOSED` states
+
+## Quick Demo Flow
+
+Use this simple end-to-end flow through the gateway:
+
+1. Create a product with tenure and fee configuration.
+2. Create or select a customer profile with a loan limit.
+3. Create and disburse a loan.
+4. Post a repayment.
+5. Run/observe daily sweep behavior for overdue transitions and fee accrual.
+6. Confirm notifications are generated for due reminders and overdue events.
+
+## Testing Scope
+
+- `mkopo.light`: fee calculations, loan state transitions, daily sweep behavior.
+- `notifications`: Kafka event consumer handoff and failure tolerance.
 
 ## Notes
 

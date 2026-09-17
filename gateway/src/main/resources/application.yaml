@@ -23,21 +23,21 @@ spring:
           - id: lending-swagger
             uri: lb://mkopo.light
             predicates:
-              - Path=/lending/swagger-ui.html, /lending/swagger-ui/**, /lending/api-docs/**
+              - Path=/lending/swagger-ui.html, /lending/swagger-ui/**, /lending/api-docs, /lending/api-docs/**
             filters:
               - RewritePath=/lending/(?<segment>.*), /${segment}
 
           - id: security-swagger
             uri: lb://security-service
             predicates:
-              - Path=/security-docs/swagger-ui.html, /security-docs/swagger-ui/**, /security-docs/api-docs/**
+              - Path=/security-docs/swagger-ui.html, /security-docs/swagger-ui/**, /security-docs/api-docs, /security-docs/api-docs/**
             filters:
               - RewritePath=/security-docs/(?<segment>.*), /${segment}
 
           - id: notification-swagger
             uri: lb://notifications
             predicates:
-              - Path=/notification-docs/swagger-ui.html, /notification-docs/swagger-ui/**, /notification-docs/api-docs/**
+              - Path=/notification-docs/swagger-ui.html, /notification-docs/swagger-ui/**, /notification-docs/api-docs, /notification-docs/api-docs/**
             filters:
               - RewritePath=/notification-docs/(?<segment>.*), /${segment}
 
