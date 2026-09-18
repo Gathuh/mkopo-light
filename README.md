@@ -3,6 +3,55 @@
 This project is a simplified lending platform built with Spring Boot and split into microservices.
 It covers loan product setup, loan lifecycle management, customer profile handling, and event-driven notifications.
 
+## Architecture Overview
+
+```mermaid
+graph TB
+    Client[Client Applications]
+    Gateway[API Gateway<br/>Port 8080]
+    Discovery[Eureka Discovery<br/>Port 8761]
+    
+    Client -->|HTTP/REST| Gateway
+    
+    Gateway -->|Route| Security[Security Service<br/>Port 8081]
+    Gateway -->|Route| Lending[mkopo.light Service<br/>Port 8082]
+    Gateway -->|Route| Notif[Notifications Service<br/>Port 8083]
+    
+    Security -->|JPA| MySQL_Sec[(MySQL<br/>security_db)]
+    Lending -->|JPA| MySQL_Lend[(MySQL<br/>lending_db)]
+    Notif -->|JPA| MySQL_Notif[(MySQL<br/>notifications_db)]
+    
+    Lending -->|Publish Events| Kafka[Apache Kafka<br/>loan-events topic]
+    Kafka -->|Consume Events| Notif
+    
+    Notif -->|Send| Email[Email/SMTP]
+    Notif -->|Send| SMS[SMS Gateway]
+    Notif -->|Send| FCM[Firebase FCM Push]
+    
+    Security -.Feign Client.-> Lending
+    
+    Gateway -.Register.-> Discovery
+    Security -.Register.-> Discovery
+    Lending -.Register.-> Discovery
+    Notif -.Register.-> Discovery
+    
+    style Gateway fill:#e1f5ff
+    style Lending fill:#fff4e1
+    style Security fill:#ffe1e1
+    style Notif fill:#e1ffe1
+    style Kafka fill:#f0e1ff
+```
+
+### Component Responsibilities
+
+| Service | Responsibility | Port |
+|---------|---------------|------|
+| **Discovery** | Service registry (Eureka) | 8761 |
+| **Gateway** | API routing, load balancing, OpenAPI aggregation | 8080 |
+| **Security** | User management, authentication, roles (CUSTOMER, LOAN_OFFICER, ADMIN) | 8081 |
+| **mkopo.light** | Core lending domain: products, loans, disbursements, repayments, fees, daily sweeps | 8082 |
+| **Notifications** | Event-driven notifications via Email, SMS, Push (Kafka consumer) | 8083 |
+
 ## Services
 
 - `discovery` - Eureka service registry (`8761`)
@@ -100,10 +149,167 @@ Start each service in a separate terminal, in this order:
 ./gradlew :notifications:bootRun
 ```
 
-## API Access
+## API Documentation
 
-- Gateway is the main entry point for client requests.
-- Swagger/OpenAPI endpoints are available per service where configured (for example, `notifications` exposes docs endpoints in its config).
+### Interactive Swagger UI
+
+When services are running, interactive API documentation is available:
+
+- **Aggregated APIs (via Gateway):** http://localhost:8080/swagger-ui.html
+- **Lending Service Direct:** http://localhost:8082/swagger-ui.html
+- **Notifications Service Direct:** http://localhost:8083/swagger-ui.html
+- **Security Service Direct:** http://localhost:8081/swagger-ui.html
+
+### API Endpoints Reference
+
+#### Products API (`/api/products`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/products` | Create new product | ADMIN |
+| GET | `/api/products` | List all products | ANY |
+| GET | `/api/products/{id}` | Get product by ID | ANY |
+| PUT | `/api/products/{id}` | Update product | ADMIN |
+| DELETE | `/api/products/{id}` | Delete product | ADMIN |
+| GET | `/api/products/search?status=ACTIVE&category=PERSONAL` | Search products | ANY |
+| GET | `/api/products/{id}/tenures` | Get product's tenure options | ANY |
+
+#### Tenures API (`/api/tenures`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/tenures` | Create tenure with fee config | ADMIN |
+| GET | `/api/tenures/{id}` | Get tenure by ID | ANY |
+| PUT | `/api/tenures/{id}` | Update tenure | ADMIN |
+| DELETE | `/api/tenures/{id}` | Delete tenure | ADMIN |
+| GET | `/api/tenures/product/{productId}` | Get tenures for product | ANY |
+
+#### Loans API (`/api/loans`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/loans/apply` | Apply for loan | CUSTOMER |
+| PUT | `/api/loans/{id}/approve` | Approve loan | LOAN_OFFICER |
+| PUT | `/api/loans/{id}/cancel` | Cancel loan | LOAN_OFFICER |
+| POST | `/api/loans/{id}/disburse` | Disburse approved loan | LOAN_OFFICER |
+| POST | `/api/loans/{id}/repay` | Post repayment | ANY |
+| GET | `/api/loans/{id}` | Get loan details | ANY |
+| GET | `/api/loans/customer/{customerId}` | Get customer's loans | ANY |
+
+#### Loan Limits API (`/api/loan-limits`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/loan-limits` | Create loan limit for customer | LOAN_OFFICER |
+| GET | `/api/loan-limits/customer/{customerId}` | Get customer's loan limit | ANY |
+| PUT | `/api/loan-limits/{id}` | Update loan limit | LOAN_OFFICER |
+
+#### Users API (`/api/users`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/users` | Create user | ADMIN |
+| GET | `/api/users/{id}` | Get user by ID | ANY |
+| GET | `/api/users` | List all users | ADMIN |
+| PUT | `/api/users/{id}` | Update user | ADMIN |
+| DELETE | `/api/users/{id}` | Delete user | ADMIN |
+
+#### Notifications API (`/api/notifications`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/notifications/templates` | Create notification template | ADMIN |
+| GET | `/api/notifications/templates` | List templates | ANY |
+| PUT | `/api/notifications/templates/{id}` | Update template | ADMIN |
+| POST | `/api/notifications/rules` | Create notification rule | ADMIN |
+| GET | `/api/notifications/rules` | List rules | ANY |
+| PUT | `/api/notifications/rules/{id}` | Update rule | ADMIN |
+| GET | `/api/notifications/logs` | Get all notification logs | ADMIN |
+| GET | `/api/notifications/logs/loan/{loanId}` | Get logs for loan | ANY |
+| GET | `/api/notifications/logs/customer/{customerId}` | Get logs for customer | ANY |
+
+### Example API Calls
+
+**Create a Product:**
+```bash
+curl -X POST http://localhost:8080/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Personal Loan",
+    "status": "ACTIVE",
+    "category": "PERSONAL",
+    "minAmount": 5000.00,
+    "maxAmount": 50000.00
+  }'
+```
+
+**Apply for a Loan:**
+```bash
+curl -X POST http://localhost:8080/api/loans/apply \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": 1,
+    "productId": 1,
+    "tenureId": 1,
+    "requestedAmount": 10000.00
+  }'
+```
+
+**Post a Repayment:**
+```bash
+curl -X POST http://localhost:8080/api/loans/123/repay \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 5000.00,
+    "paymentDate": "2026-09-18",
+    "paymentReference": "TXN123456"
+  }'
+```
+
+For detailed request/response schemas, refer to the Swagger UI documentation.
+
+### Detailed Documentation
+
+For comprehensive API specifications and loan lifecycle details:
+
+- **[API Reference Guide](docs/API_REFERENCE.md)** - Complete endpoint specifications, request/response examples, error codes
+- **[Loan Lifecycle Documentation](docs/LOAN_LIFECYCLE.md)** - Detailed loan state machine, business rules, daily sweep operations
+- **[Features Documentation](docs/FEATURES.md)** - Complete feature list, technology stack, testing coverage, deployment guide
+
+---
+
+## Key Features
+
+### Core Lending (mkopo.light)
+- ✅ Product management with min/max amounts and categories
+- ✅ Flexible tenure configuration (BULLET/INSTALLMENT)
+- ✅ Complete fee engine (service fees, interest, late fees)
+- ✅ Full loan lifecycle (PENDING → APPROVED → ACTIVE → OVERDUE → CLOSED/WRITTEN_OFF)
+- ✅ Disbursement with installment schedule generation
+- ✅ Waterfall repayment allocation (late fees → interest → principal)
+- ✅ Customer loan limits with exposure tracking
+- ✅ Daily sweep automation (overdue detection, late fees, interest accrual, write-offs, reminders)
+- ✅ Complete transaction audit trail
+
+### Notifications
+- ✅ Multi-channel delivery (Email, SMS, Push)
+- ✅ Template engine with variable replacement
+- ✅ Event-driven via Kafka
+- ✅ Notification rules and logging
+- ✅ 9 loan event types supported
+
+### User Management
+- ✅ Role-based access (CUSTOMER, LOAN_OFFICER, ADMIN)
+- ✅ User status management (ACTIVE, INACTIVE, SUSPENDED)
+- ✅ Soft delete support
+
+### Infrastructure
+- ✅ Service discovery (Eureka)
+- ✅ API Gateway with OpenAPI aggregation
+- ✅ Event-driven architecture (Kafka)
+- ✅ Global exception handling
+- ✅ 42 fully documented REST endpoints
+- ✅ Docker Compose infrastructure
 
 ## Running Tests
 
